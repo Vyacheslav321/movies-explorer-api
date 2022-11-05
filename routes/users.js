@@ -7,10 +7,10 @@ const {
   profileValidation,
 } = require('../middlewares/validation');
 
-// информация о пользователе (email и имя)
+// информация о пользователе
 router.get('/me', getCurrentUser);
 
-// обновляет профиль (email и имя)
+// обновляет профиль
 router.patch('/me', profileValidation, updateProfile);
 
 module.exports = router;

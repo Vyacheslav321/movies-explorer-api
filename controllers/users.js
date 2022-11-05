@@ -1,12 +1,12 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const { NODE_ENV, JWT_SECRET } = process.env;
 const AlreadyExistDataError = require('../errors/AlreadyExistDataError');
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const NotValidError = require('../errors/NotValidError');
 const User = require('../models/user');
+const { JWT_KEY } = require('../utils/config');
 
 // контроллер регистрации
 module.exports.createUser = (req, res, next) => {
@@ -47,7 +47,7 @@ module.exports.login = (req, res, next) => {
         }
         const token = jwt.sign(
           { _id: user._id },
-          NODE_ENV !== 'production' ? JWT_SECRET : 'pkuvqwongbqpoiqoufnvsvybqp',
+          JWT_KEY,
           { expiresIn: '7d' },
         );
         return res.send({ token });
@@ -62,11 +62,6 @@ module.exports.login = (req, res, next) => {
     });
 };
 
-// контроллер SignOut
-module.exports.signout = (_req, res) => {
-  res.send({ message: 'Выход' });
-};
-
 // сработает при GET запросе на URL /users/me
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById({ _id: req.user._id })
@@ -74,6 +69,7 @@ module.exports.getCurrentUser = (req, res, next) => {
     .then((userData) => res.send({
       email: userData.email,
       name: userData.name,
+      id: userData._id,
     }))
     .catch((err) => {
       next(err);

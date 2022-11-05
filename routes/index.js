@@ -5,13 +5,13 @@ const usersRouter = require('./users');
 const moviesRouter = require('./movies');
 const NotFoundError = require('../errors/NotFoundError');
 
-router.use('/', authRouter); // Аутентификация пользователяЛогнин
+router.use('/', authRouter); // Аутентификация логнин
 
-router.use(auth); // Проверка пользователя
+router.use(auth); // Проверка токена
 
 router.use('/users', usersRouter); // Работа с данными пользователя
 
-router.use('/movies', moviesRouter); // Работа с карточками
+router.use('/movies', moviesRouter); // Работа с карточками фильмов
 
 router.all('*', (_req, _res, next) => {
   next(new NotFoundError('Страница не найдена'));

@@ -9,10 +9,9 @@ const {
   movieIdValidation,
 } = require('../middlewares/validation');
 
-// GET /movies — возвращает все сохранённые текущим  пользователем фильмы
+// возвращает все карточки фильмов пользователя
 router.get('/', getMovies);
-// создаёт фильм с переданными в телеcountry, director, duration, year,
-// description, image, trailer, nameRU, nameEN и thumbnail, movieId
+// создаёт карточку фильма
 router.post('/', createMovieValidation, createMovie);
 // удаляет сохранённый фильм по id
 router.delete('/:movieId', movieIdValidation, deleteMovie);
