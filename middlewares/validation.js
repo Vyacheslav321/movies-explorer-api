@@ -61,7 +61,7 @@ module.exports.createMovieValidation = celebrate({
       .trim(),
     director: Joi.string().required().min(2).max(30)
       .trim(),
-    duration: Joi.number().required().max(30),
+    duration: Joi.number().required().max(1000),
     year: Joi.string().required().min(2).max(4)
       .trim(),
     description: Joi.string().required().min(2).trim(),
