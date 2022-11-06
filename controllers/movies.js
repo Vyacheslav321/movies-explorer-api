@@ -57,21 +57,21 @@ module.exports.deleteMovie = (req, res, next) => {
   const owner = req.user._id;
   const { movieId } = req.params;
   Movie.findById(movieId)
-    .orFail(new NotFoundError('Карточка не найдена'))
+    .orFail(new NotFoundError('Карточка фильма не найдена'))
     .then((movie) => {
       // Проверка на принадлежность карточки пользователю
       if (owner.toString() !== movie.owner.toString()) {
-        return next(new NoAccessError(`Пользователь с ID ${owner} не является владельцем данной карточки`));
+        return next(new NoAccessError(`Пользователь с ID ${owner} не является владельцем данной карточки фильма`));
       }
       return Movie.findByIdAndRemove(movieId)
         .then(() => {
-          res.send({ message: `Карточка с ID ${movie.id} удалена` });
+          res.send({ message: `Карточка фильма с ID ${movie.id} удалена` });
         })
         .catch(next);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Передан несуществующий ID карточки'));
+        next(new BadRequestError('Передан несуществующий ID карточки фильма'));
       }
       next(err);
     });
