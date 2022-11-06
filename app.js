@@ -32,4 +32,6 @@ app.use(errors());
 // централизованный обработчик ошибок
 app.use(errorsHandler);
 
-app.listen(PORT);
+app.listen(PORT, () => {
+  console.log(`server start port: ${PORT}`);
+});
