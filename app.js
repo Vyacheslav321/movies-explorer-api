@@ -19,6 +19,8 @@ app.use(cors());
 // запуск helmet
 app.use(helmet());
 app.disable('x-powered-by');
+// логгер request ошибок
+app.use(requestLogger);
 // ограничение на количество подключений
 app.use(limiter);
 // мидлвэр парсер
@@ -26,8 +28,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 // подключение сервера mongoose
 mongoose.connect(DB_URL);
-// логгер request ошибок
-app.use(requestLogger);
 // запуск маршрутизации
 app.use(router);
 // логгер error ошибок

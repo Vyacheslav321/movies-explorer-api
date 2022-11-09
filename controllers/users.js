@@ -7,6 +7,9 @@ const BadRequestError = require('../errors/BadRequestError');
 const NotValidError = require('../errors/NotValidError');
 const User = require('../models/user');
 const { JWT_KEY } = require('../utils/config');
+const {
+  ALREDY_EXIST_USER_EMAIL, USER_NOT_FOUND, BAD_REQUEST_ERROR, AUTH_BAD_PASSWORD,
+} = require('../utils/errors');
 
 // контроллер регистрации
 module.exports.createUser = (req, res, next) => {
@@ -25,9 +28,9 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные')); // 400
+        next(new BadRequestError(BAD_REQUEST_ERROR)); // 400
       } else if (err.code === 11000) {
-        next(new AlreadyExistDataError('Пользователь с таким email уже существует')); // 409
+        next(new AlreadyExistDataError(ALREDY_EXIST_USER_EMAIL)); // 409
       } else {
         next(err);
       }
@@ -39,11 +42,11 @@ module.exports.login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        throw new NotValidError('Такого пользователя не существует'); // 401
+        throw new NotValidError(USER_NOT_FOUND); // 401
       }
       bcrypt.compare(password, user.password, (error, isValidPassword) => {
         if (!isValidPassword) {
-          return next(new NotValidError('Пароль не верен')); // 401
+          return next(new NotValidError(AUTH_BAD_PASSWORD)); // 401
         }
         const token = jwt.sign(
           { _id: user._id },
@@ -54,18 +57,14 @@ module.exports.login = (req, res, next) => {
       });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new NotValidError('Переданы неправильные почта или пароль'));
-      } else {
-        next(err);
-      }
+      next(err);
     });
 };
 
 // сработает при GET запросе на URL /users/me
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById({ _id: req.user._id })
-    .orFail(new NotFoundError('Пользователь не найден'))
+    .orFail(new NotFoundError(USER_NOT_FOUND))
     .then((userData) => res.send({
       email: userData.email,
       name: userData.name,
@@ -80,21 +79,30 @@ module.exports.getCurrentUser = (req, res, next) => {
 // сработает при PATCH запросе на URL /users/me
 module.exports.updateProfile = (req, res, next) => {
   const { email, name } = req.body;
-  User.findByIdAndUpdate(
-    req.user._id,
-    { email, name },
-    { runValidators: true, new: true },
-  )
-    .orFail(new NotFoundError('Пользователь не найден'))
-    .then((userData) => res.send({
-      email: userData.email,
-      name: userData.name,
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(err);
+  User.findOne({ email })
+    .then((data) => {
+      if (data) {
+        return next(new AlreadyExistDataError(ALREDY_EXIST_USER_EMAIL)); // 409
       }
+      return User.findByIdAndUpdate(
+        req.user._id,
+        { email, name },
+        { runValidators: true, new: true },
+      )
+        .orFail(new NotFoundError(USER_NOT_FOUND)) // 404
+        .then((userData) => res.send({
+          email: userData.email,
+          name: userData.name,
+        }))
+        .catch((err) => {
+          if (err.name === 'ValidationError') {
+            next(new BadRequestError(BAD_REQUEST_ERROR));
+          } else {
+            next(err);
+          }
+        });
+    })
+    .catch((err) => {
+      next(err);
     });
 };

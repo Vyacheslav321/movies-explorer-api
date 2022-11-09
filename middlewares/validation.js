@@ -17,7 +17,7 @@ module.exports.signupValidation = celebrate({
       .messages({
         'string.email': UNCORRECT_EMAIL,
       }),
-    password: Joi.string().required().trim().min(6)
+    password: Joi.string().required().trim()
       .message({
         'string.min': MIN_PASS,
       }),
@@ -31,7 +31,7 @@ module.exports.signinValidation = celebrate({
       .messages({
         'string.email': UNCORRECT_EMAIL,
       }),
-    password: Joi.string().required().min(6).trim()
+    password: Joi.string().required().trim()
       .messages({
         'string.min': MIN_PASS,
       }),
@@ -41,11 +41,11 @@ module.exports.signinValidation = celebrate({
 // проверка при обновлении профиля
 module.exports.profileValidation = celebrate({
   body: Joi.object().keys({
-    email: Joi.string().email()
+    email: Joi.string().email().required()
       .messages({
         'string.email': UNCORRECT_EMAIL,
       }),
-    name: Joi.string().trim().min(2).max(30)
+    name: Joi.string().min(2).max(30).required()
       .trim()
       .messages({
         'string.min': MIN_NAME,
@@ -57,21 +57,17 @@ module.exports.profileValidation = celebrate({
 // проверка при создании фильма
 module.exports.createMovieValidation = celebrate({
   body: Joi.object().keys({
-    country: Joi.string().required().min(2).max(30)
-      .trim(),
-    director: Joi.string().required().min(2).max(30)
-      .trim(),
-    duration: Joi.number().required().max(1000),
-    year: Joi.string().required().min(2).max(4)
-      .trim(),
-    description: Joi.string().required().min(2).trim(),
+    country: Joi.string().required().trim(),
+    director: Joi.string().required().trim(),
+    duration: Joi.number().required(),
+    year: Joi.string().required().trim(),
+    description: Joi.string().required().trim(),
     image: Joi.string().required().pattern(linkReg),
     trailerLink: Joi.string().required().pattern(linkReg),
     thumbnail: Joi.string().required().pattern(linkReg),
-    nameRU: Joi.string().required().min(2).max(30)
-      .trim(),
-    nameEN: Joi.string().required().min(2).max(30)
-      .trim(),
+    movieId: Joi.required(),
+    nameRU: Joi.string().required().trim(),
+    nameEN: Joi.string().required().trim(),
   }),
 });
 

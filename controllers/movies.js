@@ -1,7 +1,8 @@
 const NotFoundError = require('../errors/NotFoundError');
 const BadRequestError = require('../errors/BadRequestError');
 const Movie = require('../models/movie');
-const NoAccessError = require('../errors/NoAccessError');
+const ForbiddenError = require('../errors/ForbiddenError');
+const { BAD_REQUEST_ERROR, FORBIDDEN_DELETE, CARD_NOT_FOUND } = require('../utils/errors');
 
 // сработает при GET-запросе на URL /movies
 module.exports.getMovies = (req, res, next) => {
@@ -25,6 +26,7 @@ module.exports.createMovie = (req, res, next) => {
     image,
     trailerLink,
     thumbnail,
+    movieId,
     nameRU,
     nameEN,
   } = req.body;
@@ -39,13 +41,14 @@ module.exports.createMovie = (req, res, next) => {
     image,
     trailerLink,
     thumbnail,
+    movieId,
     nameRU,
     nameEN,
   })
     .then((movie) => res.send(movie))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные id'));
+        next(new BadRequestError(BAD_REQUEST_ERROR));
       } else {
         next(err);
       }
@@ -57,11 +60,11 @@ module.exports.deleteMovie = (req, res, next) => {
   const owner = req.user._id;
   const { movieId } = req.params;
   Movie.findById(movieId)
-    .orFail(new NotFoundError('Карточка фильма не найдена'))
+    .orFail(new NotFoundError(CARD_NOT_FOUND))
     .then((movie) => {
       // Проверка на принадлежность карточки пользователю
       if (owner.toString() !== movie.owner.toString()) {
-        return next(new NoAccessError(`Пользователь с ID ${owner} не является владельцем данной карточки фильма`));
+        return next(new ForbiddenError(FORBIDDEN_DELETE));
       }
       return Movie.findByIdAndRemove(movieId)
         .then(() => {
@@ -71,7 +74,7 @@ module.exports.deleteMovie = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Передан несуществующий ID карточки фильма'));
+        next(new BadRequestError(BAD_REQUEST_ERROR));
       }
       next(err);
     });
