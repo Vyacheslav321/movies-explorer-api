@@ -3,6 +3,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const Movie = require('../models/movie');
 const ForbiddenError = require('../errors/ForbiddenError');
 const { BAD_REQUEST_ERROR, FORBIDDEN_DELETE, CARD_NOT_FOUND } = require('../utils/errors');
+const { CARD_DELETED } = require('../utils/messages');
 
 // сработает при GET-запросе на URL /movies
 module.exports.getMovies = (req, res, next) => {
@@ -68,7 +69,7 @@ module.exports.deleteMovie = (req, res, next) => {
       }
       return Movie.findByIdAndRemove(movieId)
         .then(() => {
-          res.send({ message: `Карточка фильма с ID ${movie.id} удалена` });
+          res.send({ message: CARD_DELETED });
         })
         .catch(next);
     })

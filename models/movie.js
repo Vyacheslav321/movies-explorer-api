@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const { UNCORRECT_FORMAT_URL } = require('../utils/errors');
 
 const movieSchema = new mongoose.Schema({
   // страна создания фильма
@@ -33,7 +34,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (link) => validator.isURL(link),
-      message: 'Передана ссылка некорректного формата',
+      message: UNCORRECT_FORMAT_URL,
     },
   },
   // ссылка на трейлер фильма
@@ -42,7 +43,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (link) => validator.isURL(link),
-      message: 'Передана ссылка некорректного формата',
+      message: UNCORRECT_FORMAT_URL,
     },
   },
   // миниатюрное изображение постера к фильму
@@ -51,7 +52,7 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator: (link) => validator.isURL(link),
-      message: 'Передана ссылка некорректного формата',
+      message: UNCORRECT_FORMAT_URL,
     },
   },
   // _id пользователя, который сохранил фильм
